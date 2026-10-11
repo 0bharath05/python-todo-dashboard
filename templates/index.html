@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#17213b">
+    <title>TaskFlow | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <span class="brand-icon">T</span>
+            <span>TaskFlow</span>
+        </a>
+
+        <p class="nav-label">WORKSPACE</p>
+
+        <a class="nav-link active" href="{{ url_for('dashboard') }}">
+            <span>▦</span> Dashboard
+        </a>
+
+        <div class="sidebar-note">
+            <div class="note-icon">✦</div>
+            <h3>Stay focused.</h3>
+            <p>Small steps every day lead to big results.</p>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">B</div>
+            <div>
+                <strong>My Workspace</strong>
+                <small>Personal task manager</small>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main dashboard -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">YOUR WORKSPACE</p>
+                <h1>Dashboard</h1>
+                <p class="subtitle">
+                    Organize your work and make progress.
+                </p>
+            </div>
+
+            <div class="today-badge">✦ Stay productive</div>
+        </header>
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Total tasks</span>
+                    <span class="stat-icon purple">▦</span>
+                </div>
+                <h2>{{ total }}</h2>
+                <p>All your tasks</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Pending</span>
+                    <span class="stat-icon orange">◷</span>
+                </div>
+                <h2>{{ pending }}</h2>
+                <p>Still to be done</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Completed</span>
+                    <span class="stat-icon green">✓</span>
+                </div>
+                <h2>{{ completed }}</h2>
+                <p>Tasks finished</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Overdue</span>
+                    <span class="stat-icon orange">!</span>
+                </div>
+                <h2>{{ overdue }}</h2>
+                <p>Pending past due date</p>
+            </article>
+
+        </section>
+
+        <!-- Progress -->
+        <section class="progress-card">
+            <div class="progress-heading">
+                <div>
+                    <h2>Your progress</h2>
+                    <p>Keep going, you're making progress!</p>
+                </div>
+
+                <strong>{{ progress }}%</strong>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill"
+                     style="width: {{ progress }}%"></div>
+            </div>
+
+            <p class="progress-caption">
+                {{ completed }} of {{ total }} tasks completed
+            </p>
+        </section>
+
+        <!-- Task management -->
+        <section class="tasks-panel">
+
+            <div class="section-heading">
+                <div>
+                    <h2>My tasks</h2>
+                    <p>Manage your daily priorities.</p>
+                </div>
+            </div>
+
+            <!-- Add task -->
+            <form action="{{ url_for('add_task') }}"
+                  method="POST"
+                  class="add-form">
+
+                <input
+                    type="text"
+                    name="task"
+                    placeholder="What needs to get done?"
+                    maxlength="200"
+                    required
+                >
+
+                <select name="priority" aria-label="Task priority">
+                    <option value="High">High priority</option>
+                    <option value="Medium" selected>
+                        Medium priority
+                    </option>
+                    <option value="Low">Low priority</option>
+                </select>
+
+                <input
+                    type="date"
+                    name="due_date"
+                    aria-label="Due date"
+                >
+
+                <button type="submit" class="primary-button">
+                    + Add task
+                </button>
+            </form>
+
+            <!-- Search -->
+            <form action="{{ url_for('dashboard') }}"
+                  method="GET"
+                  class="search-form">
+
+                <div class="search-box">
+                    <span>⌕</span>
+
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ query }}"
+                        placeholder="Search your tasks..."
+                        aria-label="Search tasks"
+                    >
+                </div>
+
+                <input
+                    type="hidden"
+                    name="status"
+                    value="{{ status }}"
+                >
+
+                <button type="submit" class="secondary-button">
+                    Search
+                </button>
+            </form>
+
+            <!-- Filters -->
+            <nav class="filter-tabs" aria-label="Filter tasks">
+
+                <a href="{{ url_for('dashboard', q=query, status='all') }}"
+                   class="filter-tab {{ 'selected' if status == 'all' else '' }}">
+                    All <span>{{ total }}</span>
+                </a>
+
+                <a href="{{ url_for('dashboard', q=query, status='pending') }}"
+                   class="filter-tab {{ 'selected' if status == 'pending' else '' }}">
+                    Pending <span>{{ pending }}</span>
+                </a>
+
+                <a href="{{ url_for('dashboard', q=query, status='completed') }}"
+                   class="filter-tab {{ 'selected' if status == 'completed' else '' }}">
+                    Completed <span>{{ completed }}</span>
+                </a>
+
+            </nav>
+
+            <!-- Task list -->
+            {% if tasks %}
+
+                <div class="task-list">
+
+                    {% for task_id, task in tasks %}
+
+                        <article class="task-row">
+
+                            <!-- Complete / uncomplete -->
+                            <form
+                                action="{{ url_for('toggle_task', task_id=task_id) }}"
+                                method="POST"
+                            >
+                                <button
+                                    type="submit"
+                                    class="check-button {{ 'checked' if task.completed else '' }}"
+                                    aria-label="Toggle task completion"
+                                    title="Toggle completion"
+                                >
+                                    {{ '✓' if task.completed else '' }}
+                                </button>
+                            </form>
+
+                            <!-- Task information -->
+                            <div class="task-details">
+
+                                <span class="task-title {{ 'is-completed' if task.completed else '' }}">
+                                    {{ task.task }}
+                                </span>
+
+                                <div class="task-meta">
+
+                                    <span class="priority-badge {{ task.get('priority', 'Medium')|lower }}">
+                                        {{ task.get('priority', 'Medium') }}
+                                        priority
+                                    </span>
+
+                                    {% if task.get('due_date') %}
+
+                                        <span class="due-date {{ 'overdue' if not task.completed and task.due_date < today else '' }}">
+                                            Due {{ task.due_date }}
+
+                                            {% if not task.completed and task.due_date < today %}
+                                                · Overdue
+                                            {% endif %}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="due-date">
+                                            No due date
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <span class="status-pill {{ 'done' if task.completed else 'waiting' }}">
+                                {{ 'Completed' if task.completed else 'Pending' }}
+                            </span>
+
+                            <!-- Edit -->
+                            <a
+                                class="edit-button"
+                                href="{{ url_for('edit_task', task_id=task_id) }}"
+                                title="Edit task"
+                            >
+                                Edit
+                            </a>
+
+                            <!-- Delete -->
+                            <form
+                                action="{{ url_for('delete_task', task_id=task_id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this task?');"
+                            >
+                                <button
+                                    type="submit"
+                                    class="delete-button"
+                                    aria-label="Delete task"
+                                    title="Delete task"
+                                >
+                                    ×
+                                </button>
+                            </form>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <!-- Empty state -->
+                <div class="empty-state">
+                    <div class="empty-icon">✓</div>
+
+                    <h3>
+                        {% if query or status != 'all' %}
+                            No matching tasks
+                        {% else %}
+                            Your task list is empty
+                        {% endif %}
+                    </h3>
+
+                    <p>
+                        {% if query or status != 'all' %}
+                            Try another search or choose a different filter.
+                        {% else %}
+                            Add your first task above and get started.
+                        {% endif %}
+                    </p>
+
+                    {% if query or status != 'all' %}
+                        <a
+                            class="clear-link"
+                            href="{{ url_for('dashboard') }}"
+                        >
+                            Clear search and filters
+                        </a>
+                    {% endif %}
+                </div>
+
+            {% endif %}
+
+            <footer class="list-footer">
+                Showing {{ tasks|length }} matching task(s)
+            </footer>
+
+        </section>
+
+        <footer class="page-footer">
+            TaskFlow · Built with Python and Flask
+        </footer>
+
+    </main>
+</div>
+</body>
+</html>

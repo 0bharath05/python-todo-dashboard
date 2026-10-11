@@ -1,0 +1,20 @@
+[
+    {
+        "task": "sleep",
+        "completed": false,
+        "priority": "Medium",
+        "due_date": ""
+    },
+    {
+        "task": "play",
+        "completed": false,
+        "priority": "Medium",
+        "due_date": ""
+    },
+    {
+        "task": "write",
+        "completed": true,
+        "priority": "Low",
+        "due_date": "2026-10-09"
+    }
+]

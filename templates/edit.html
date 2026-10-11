@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task | TaskFlow</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="edit-container">
+        <a class="back-link" href="{{ url_for('dashboard') }}">
+            ← Back to dashboard
+        </a>
+
+        <section class="edit-card">
+            <p class="eyebrow">TASK MANAGEMENT</p>
+            <h1>Edit task</h1>
+            <p class="subtitle">Update the details of your task.</p>
+
+            <form method="POST" class="edit-form">
+                <label for="task">Task name</label>
+                <input id="task" name="task" type="text"
+                       value="{{ task.task }}" maxlength="200" required>
+
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority">
+                    {% for option in priorities %}
+                    <option value="{{ option }}"
+                        {% if task.get('priority', 'Medium') == option %}
+                            selected
+                        {% endif %}>
+                        {{ option }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="due_date">Due date</label>
+                <input id="due_date" name="due_date" type="date"
+                       value="{{ task.get('due_date', '') }}">
+
+                <div class="edit-actions">
+                    <button type="submit" class="primary-button">
+                        Save changes
+                    </button>
+                    <a class="cancel-link"
+                       href="{{ url_for('dashboard') }}">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
