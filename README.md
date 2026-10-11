@@ -104,3 +104,16 @@ This project was developed as a Python internship project to practise Python pro
 **Project:** Python To-Do Dashboard  
 **Status:** Completed  
 **Built with:** Python and Flask
+## Screenshots
+
+### Main Dashboard
+![Main Dashboard](screenshots/dashboard.png)
+
+### Task Management
+![Task Management](screenshots/task-management.png)
+
+### Search and Filters
+![Search and Filters](screenshots/search-filters.png)
+
+## Live Demo
+https://python-todo-dashboard.onrender.com/
